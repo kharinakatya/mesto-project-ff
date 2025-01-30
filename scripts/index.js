@@ -8,7 +8,7 @@ function deleteCard(event) {
     }
 }
 
-function createCard(data) {
+function createCard(data, deleteCard) {
     const cardElement = template.querySelector('.card').cloneNode(true);
     
     const imageElement = cardElement.querySelector('.card__image');
