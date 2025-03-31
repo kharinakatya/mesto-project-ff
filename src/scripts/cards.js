@@ -34,31 +34,3 @@ const initialCards = [
 ];
 
 export default initialCards;
-
-//лайк карточек
-const likeButtons = document.querySelectorAll('.card__like-button');
-
-likeButtons.forEach(button => {
-    button.addEventListener('click', function() {
-        // Переключаем класс 'liked' у кнопки
-        this.classList.toggle('liked');
-    });
-});
-
-function addCard(imageSrc, title) {
-    const template = document.getElementById('card-template');
-    const cardElement = template.content.cloneNode(true);
-    const img = cardElement.querySelector('.card__image');
-    const titleElem = cardElement.querySelector('.card__title');
-    const likeButton = cardElement.querySelector('.card__like-button');
-
-    img.src = imageSrc;
-    titleElem.textContent = title;
-
-    // Добавляем обработчик для нового лайка
-    likeButton.addEventListener('click', function() {
-        this.classList.toggle('liked');
-    });
-
-    document.querySelector('.places__list').appendChild(cardElement);
-};
