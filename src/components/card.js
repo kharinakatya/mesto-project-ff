@@ -25,7 +25,6 @@ export function createCard(data, openPopupImage) {
         likeButton.classList.toggle('card__like-button_is-active');
     });
 
-    // Теперь обработчик клика на изображении будет передан правильно
     imageElement.addEventListener('click', () => {
         openPopupImage(data.link, data.name);
     });
