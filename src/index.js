@@ -13,6 +13,10 @@ const popupEdit = document.querySelector('.popup_type_edit');
 const popupNewCard = document.querySelector('.popup_type_new-card');
 const popupImage = document.querySelector('.popup_type_image');
 
+// New constants for the image and caption elements in the popup
+const popupImageElement = popupImage.querySelector('.popup__image');
+const popupCaptionElement = popupImage.querySelector('.popup__caption');
+
 const profileNameElement = document.querySelector('.profile__title');
 const profileDescriptionElement = document.querySelector('.profile__description');
 
@@ -72,8 +76,6 @@ function savePopupNewCard(event) {
 }
 
 function openPopupImage(imageSrc, imageAlt) {
-  const popupImageElement = popupImage.querySelector('.popup__image');
-  const popupCaptionElement = popupImage.querySelector('.popup__caption');
   popupImageElement.src = imageSrc;
   popupImageElement.alt = imageAlt;
   popupCaptionElement.textContent = imageAlt;
@@ -93,16 +95,7 @@ popupEdit.querySelector('.popup__button').addEventListener('click', savePopupEdi
 document.querySelector('.profile__add-button').addEventListener('click', openPopupNewCard);
 popupNewCard.querySelector('.popup__close').addEventListener('click', closePopupNewCard);
 popupNewCard.querySelector('.popup__button').addEventListener('click', savePopupNewCard);
-
-document.querySelector('.popup_type_image').querySelector('.popup__close').addEventListener('click', closePopupImage);
-
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') {
-    closePopupEdit();
-    closePopupNewCard();
-    closePopupImage();
-  }
-});
+popupImage.querySelector('.popup__close').addEventListener('click', closePopupImage);
 
 function closePopupOnOverlay(event, popup) {
   if (event.target === popup) {

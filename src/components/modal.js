@@ -8,14 +8,11 @@ export function closePopup(popup) {
     document.removeEventListener('keydown', closePopupByEsc);
 }
 
-export function closePopupByEsc(event) {
-    if (event.key === 'Escape') {
-        if (popupEdit.classList.contains('popup_is-opened')) {
-            closePopupEdit();
-        } else if (popupNewCard.classList.contains('popup_is-opened')) {
-            closePopupNewCard();
-        } else if (popupImage.classList.contains('popup_is-opened')) {
-            closePopupImage();
+export function closePopupByEsc(event) { 
+    if (event.key === 'Escape') { 
+        const openPopup = document.querySelector('.popup_is-opened');
+        if (openPopup) {
+            closePopup(openPopup);
         }
-    }
+    } 
 }
