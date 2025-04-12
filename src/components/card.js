@@ -7,7 +7,6 @@ export function deleteCard(event) {
     }
 };
 
-
 export function createCard(data, openPopupImage) {
     const cardElement = template.querySelector('.card').cloneNode(true);
     
@@ -26,16 +25,10 @@ export function createCard(data, openPopupImage) {
         likeButton.classList.toggle('card__like-button_is-active');
     });
 
+    // Теперь обработчик клика на изображении будет передан правильно
     imageElement.addEventListener('click', () => {
         openPopupImage(data.link, data.name);
     });
 
     return cardElement;
-}
-
-export function renderCards(initialCards, cardsContainer, openPopupImage) {
-    initialCards.forEach(cardData => {
-        const cardElement = createCard(cardData, openPopupImage);
-        cardsContainer.append(cardElement);
-    });
 }
