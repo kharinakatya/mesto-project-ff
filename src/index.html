@@ -15,7 +15,16 @@
   </header>
   <main class="content">
     <section class="profile page__section">
-      <div class="profile__image" style="background-image: url('./images/avatar.jpg');"></div>
+      <div class="profile__image-wrapper">
+        <div class="profile__image" id="profile-avatar" style="background-image: url('./images/avatar.jpg');"></div>
+          <button class="image-button" id="button-image">
+            <div class="image-container">
+            <svg class="circular-image" width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M26 3.45351L6.76981 22.7932L3.33585 19.2903L22.517 0L26 3.45351ZM0 26L5.10189 24.4706L1.52075 21.0171L0 26Z" fill="#fff"/>
+            </svg>
+            </div>
+          </button>
+      </div>
       <div class="profile__info">
         <h1 class="profile__title">Жак-Ив Кусто</h1>
         <button class="profile__edit-button" type="button"></button>
@@ -38,9 +47,11 @@
       <button type="button" class="popup__close"></button>
       <h3 class="popup__title">Редактировать профиль</h3>
       <form class="popup__form" name="edit-profile">
-        <input type="text" name="name" class="popup__input popup__input_type_name" placeholder="Имя" required>
-        <input type="text" name="description" class="popup__input popup__input_type_description" placeholder="Занятие" required>
-        <button type="submit" class="button popup__button">Сохранить</button>
+        <input type="text" name="name" class="popup__input popup__input_type_name" placeholder="Имя" minlength="2" maxlength="40" required>
+        <span id="name-error" class="popup__error"></span>
+        <input type="text" name="description" class="popup__input popup__input_type_description" placeholder="Занятие" minlength="2" maxlength="200" required>
+        <span id="description-error" class="popup__error"></span>
+        <button type="submit" class="button popup__button" disabled>Сохранить</button>
       </form>
     </div>
   </div>
@@ -49,9 +60,11 @@
       <button type="button" class="popup__close"></button>
       <h3 class="popup__title">Новое место</h3>
       <form class="popup__form" name="new-place">
-        <input type="text" name="place-name" class="popup__input popup__input_type_card-name" placeholder="Название" required>
+        <input type="text" name="place-name" class="popup__input popup__input_type_card-name" placeholder="Название" minlength="2" maxlength="30" required>
+        <span id="place-name-error" class="popup__error"></span>
         <input type="url" name="link" class="popup__input popup__input_type_url" placeholder="Ссылка на картинку" required>
-        <button type="submit" class="button popup__button">Сохранить</button>
+        <span id="link-error" class="popup__error"></span>
+        <button type="submit" class="button popup__button" disabled>Сохранить</button>
       </form>
     </div>
   </div>
@@ -64,6 +77,27 @@
   </div>
 </div>
 
+<div class="popup popup_is-animated" id="popup-confirm">
+  <div class="popup__content_confirm">
+    <button class="popup__close" type="button"></button>
+    <h3 class="popup__title">Вы уверены?</h3>
+    <form class="popup__form" name="confirm-delete">
+      <button class="button popup__button popup__button_type_confirm" type="submit">Да</button>
+    </form>
+  </div>
+</div>
+
+<div id="popupEditAvatar" class="popup popup_is-animated">
+  <div class="popup__content_avatar">
+    <button class="popup__close" type="button" aria-label="Закрыть"></button>
+    <h3 class="popup__title">Обновить аватар</h3>
+    <form name="edit-avatar" class="popup__form" novalidate>
+        <input id="avatar-link-input" name="link" class="popup__input" type="url" placeholder="Ссылка на аватар" required/>
+        <span class="popup__error" id="avatar-link-input-error"></span>
+      <button type="submit" class="button popup__button form__submit" disabled>Сохранить</button>
+    </form>
+  </div>
+</div>
 
 <template id="card-template">
   <li class="places__item card">
@@ -71,8 +105,10 @@
     <button type="button" class="card__delete-button"></button>
     <div class="card__description">
       <h2 class="card__title">
+
       </h2>
       <button type="button" class="card__like-button"></button>
+      <span class="card__likes-count">0</span>
     </div>
   </li>
 </template>

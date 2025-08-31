@@ -17,3 +17,50 @@
     padding: 30px 20px;
   }
 }
+
+.popup_type_confirm {
+  width: 430px;
+  height: 181px;
+  background-color: #fff;
+}
+
+.popup__content_confirm {
+  max-width: 430px;
+  width: 100%;
+  min-height: 181px;
+  background-color: #fff;
+  border-radius: 10px;
+  position: relative;
+  box-sizing: border-box;
+  padding: 34px 36px;
+}
+
+.image-button {
+    background: none;       /* Убираем фон кнопки */
+    border: none;          /* Убираем рамку кнопки */
+    cursor: pointer;       /* Меняем курсор на указатель */
+    padding: 0;    
+    position: absolute;
+    bottom: 36px;       /* Убираем отступы */
+}
+
+.image-container {
+    width: 120px;          /* Ширина контейнера */
+    height: 120px;         /* Высота контейнера */
+    border: none;
+    background-color: rgba(0, 0, 0, 0.8); /* Серый фон */
+    display: flex;        /* Flexbox для центрирования содержимого */
+    justify-content: center; /* Центрирование по горизонтали */
+    align-items: center; 
+    opacity: 0;            /* Скрываем контейнер по умолчанию */
+    transition: opacity 0.3s; /* Центрирование по вертикали */
+}
+
+.circular-image {
+  height: 26px;
+  width: 26px;   /* Круглая форма для изображения */
+}
+
+.image-button:hover .image-container {
+    opacity: 1;            /* Показываем контейнер при наведении */
+}

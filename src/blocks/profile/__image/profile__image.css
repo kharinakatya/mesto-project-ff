@@ -9,6 +9,37 @@
   margin: 0 29px 0 0;
 }
 
+.profile__avatar-edit-button {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  background-color: transparent;
+  border: none;
+  opacity: 0;
+  background-repeat: no-repeat;
+  bottom: 84px;
+  left: 53px;
+  background-position: center;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='white' d='M26 3.45351L6.76981 22.7932L3.33585 19.2903L22.517 0L26 3.45351ZM0 26L5.10189 24.4706L1.52075 21.0171L0 26Z'/%3E%3C/svg%3E");
+}
+
+.popup__content_avatar {
+  background-color: #fff;
+  border-radius: 10px;
+  box-sizing: border-box;
+  max-width: 430px;
+  padding: 36px;
+  position: relative;
+  width: 100%;
+}
+
+/* Появление кнопки при hover на обёртке или при фокусе на кнопке */
+.profile__image-wrapper:hover .profile__avatar-edit-button,
+.profile__avatar-edit-button:focus {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @media screen and (max-width: 740px) {
   .profile__image {
     margin: 0 10px 0 0;
