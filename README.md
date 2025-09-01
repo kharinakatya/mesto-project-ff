@@ -1,2 +1,1 @@
-# Проектная работа Mesto
-https://github.com/kharinakatya/mesto-project-ff
+https://kharinakatya.github.io/mesto-project-ff/
