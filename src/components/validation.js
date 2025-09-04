@@ -1,7 +1,8 @@
 export function validateUrl(value) {
   const pattern = /^(https?:\/\/)([^\s]+)/;
-  return pattern.test(value);
+   return pattern.test(value);
 }
+
 
 function showError(input, message, config) {
   const errorElement = input.closest(config.formSelector)?.querySelector(`.${input.id}-error`) ||

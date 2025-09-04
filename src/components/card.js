@@ -1,4 +1,3 @@
-// components/card.js
 import { openPopup, closePopup } from './modal.js';
 import { deleteCardRequest, putLike, removeLike } from './api.js';
 

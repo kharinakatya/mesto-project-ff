@@ -16,3 +16,9 @@ export function closePopupByEsc(event) {
         }
     } 
 }
+
+export function closePopupOnOverlay(event, popup) {
+  if (event.target === popup) {
+    closePopup(popup);
+  }
+}

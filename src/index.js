@@ -1,11 +1,12 @@
-import initialCards from './scripts/cards.js';
 import './pages/index.css';
 import { createCard } from './components/card.js';
-import { openPopup, closePopup } from './components/modal.js';
+import { openPopup, closePopup, closePopupOnOverlay } from './components/modal.js';
 import { enableValidation, clearValidation, validateUrl } from './components/validation.js';
-import { fetchUserProfile, fetchCards, updateProfile, postCard, patchAvatar } from './components/api.js';
+import { fetchUserProfile, fetchCards, updateProfile, postCard, patchAvatar, deleteCardRequest } from './components/api.js';
 
 let currentUserId = null;
+
+const cardsContainer = document.querySelector('.places__list');
 
 Promise.all([fetchUserProfile(), fetchCards()])
   .then(([user, cards]) => {
@@ -22,7 +23,7 @@ Promise.all([fetchUserProfile(), fetchCards()])
 
     cards.forEach(cardData => {
       if (cardData && cardData.link && cardData.name && cardData._id) {
-        const cardElement = createCard(cardData, openPopupImage, currentUserId);
+        const cardElement = createCard(cardData, openPopupImage, currentUserId, openConfirm);
         cardsContainer.appendChild(cardElement);
       } else {
         console.error('Некорректные данные карточки:', cardData);
@@ -33,8 +34,73 @@ Promise.all([fetchUserProfile(), fetchCards()])
     console.error(`Ошибка загрузки данных: ${err}`);
   });
 
+const popupConfirm = document.querySelector('#popup-confirm');
+const confirmForm = popupConfirm ? popupConfirm.querySelector('form[name="confirm-delete"]') : null;
+
+let pendingDelete = { cardElement: null, cardId: null };
+
+if (confirmForm) {
+  confirmForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    const { cardElement, cardId } = pendingDelete;
+
+    if (!cardElement || !cardId) {
+      pendingDelete = { cardElement: null, cardId: null };
+      closePopup(popupConfirm);
+      return;
+    }
+
+    const submitButton = confirmForm.querySelector('.popup__button');
+    const originalText = submitButton ? submitButton.textContent : 'Да';
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Удаление...';
+    }
+
+    deleteCardRequest(cardId)
+      .then(() => {
+        if (cardElement && cardElement.remove) cardElement.remove();
+        pendingDelete = { cardElement: null, cardId: null };
+        closePopup(popupConfirm);
+      })
+      .catch(err => {
+        console.error('Ошибка при удалении карточки:', err);
+
+        const errorElem = popupConfirm.querySelector('.popup__error') ||
+                          popupConfirm.querySelector('.popup__message_error');
+        if (errorElem) {
+          errorElem.textContent = 'Не удалось удалить карточку. Повторите попытку.';
+          errorElem.classList.add('popup__error_visible');
+        } else {
+          alert('Не удалось удалить карточку. Проверьте соединение и попробуйте ещё раз.');
+        }
+      })
+      .finally(() => {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = originalText;
+        }
+      });
+  });
+}
+
+function openConfirm(cardElement, cardId) {
+  pendingDelete = { cardElement, cardId };
+  if (popupConfirm) {
+    const errorElem = popupConfirm.querySelector('.popup__error') ||
+                      popupConfirm.querySelector('.popup__message_error');
+    if (errorElem) {
+      errorElem.textContent = '';
+      errorElem.classList.remove('popup__error_visible');
+    }
+
+    openPopup(popupConfirm);
+  }
+}
+
 const popupEditAvatar = document.querySelector('#popupEditAvatar');
-const form = popupEditAvatar ? popupEditAvatar.querySelector('form[name="edit-avatar"]') : null;
+const form = popupEditAvatar ? popupEditAvatar.querySelector('form[name="formEditAvatar"]') : null;
 const input = form ? form.querySelector('#avatar-link-input') : null;
 const submitButton = form ? form.querySelector('.form__submit') : null;
 const errorSpan = form ? form.querySelector('#avatar-link-input-error') : null;
@@ -53,36 +119,11 @@ const imageButton = document.querySelector('.image-button');
 
 if (imageButton && popupEditAvatar) {
   imageButton.addEventListener('click', () => {
-    if (input) {
-      input.value = '';
-      input.setCustomValidity('');
-    }
-    if (errorSpan) {
-      errorSpan.textContent = '';
-    }
-    if (submitButton) {
-      submitButton.active = true;
-      submitButton.textContent = 'Сохранить';
-    }
     openPopup(popupEditAvatar);
   });
 }
 
-if (form) {
-    input.addEventListener('input', () => {
-    const val = input.value.trim();
-    if (!val) {
-      input.setCustomValidity('Поле обязательно');
-      errorSpan.textContent = 'Поле обязательно';
-    } else if (!validateUrl(val)) {
-      input.setCustomValidity('Введите корректный URL');
-      errorSpan.textContent = 'Введите корректный URL';
-    } else {
-      input.setCustomValidity('');
-      errorSpan.textContent = '';
-    }
-  });
-
+if (form)
   form.addEventListener('submit', async (evt) => {
     evt.preventDefault();
     const url = input.value.trim();
@@ -122,7 +163,7 @@ if (form) {
       submitButton.textContent = 'Сохранить';
     }
   });
-}
+
 
 const validationConfig = {
   formSelector: '.popup__form',
@@ -137,16 +178,6 @@ enableValidation(validationConfig);
 
 const profileForm = document.querySelector('form[name="edit-profile"]');
 const newPlaceForm = document.querySelector('form[name="new-place"]');
-
-document.querySelector('.popup_type_edit').addEventListener('open', () => {
-  clearValidation(profileForm, validationConfig);
-});
-
-document.querySelector('.popup_type_new-card').addEventListener('open', () => {
-  clearValidation(newPlaceForm, validationConfig);
-});
-
-const cardsContainer = document.querySelector('.places__list');
 
 const popupEdit = document.querySelector('.popup_type_edit');
 const popupNewCard = document.querySelector('.popup_type_new-card');
@@ -164,12 +195,6 @@ const descriptionInput = popupEdit.querySelector('.popup__input_type_description
 const cardNameInput = popupNewCard.querySelector('.popup__input_type_card-name');
 const cardLinkInput = popupNewCard.querySelector('.popup__input_type_url');
 
-function renderCards(initialCards, cardsContainer, openPopupImage) {
-  initialCards.forEach(cardData => {
-    const cardElement = createCard(cardData, openPopupImage);
-    cardsContainer.append(cardElement);
-  });
-}
 
 function openPopupEdit() {
   nameInput.value = profileNameElement.textContent;
@@ -222,10 +247,6 @@ async function savePopupEdit(event) {
 }
 
 function openPopupNewCard() {
-  cardNameInput.value = '';
-  cardLinkInput.value = '';
-  clearValidation(newPlaceForm, validationConfig);
-  newPlaceForm.reset();
   openPopup(popupNewCard);
 }
 
@@ -243,24 +264,36 @@ function savePopupNewCard(event) {
   if (!submitButton) return;
 
   submitButton.active = true;
-  setTimeout(() => {
-    submitButton.textContent = 'Сохранение...';
+  submitButton.textContent = 'Сохранение...';
 
+  setTimeout(() => {
     postCard(newCardData)
       .then(createdCard => {
-        const cardElement = createCard(createdCard, openPopupImage, currentUserId);
+        const cardElement = createCard(createdCard, openPopupImage, currentUserId, openConfirm);
         cardsContainer.prepend(cardElement);
+
         closePopupNewCard();
+
+        if (newPlaceForm) {
+          newPlaceForm.reset();
+          clearValidation(newPlaceForm, validationConfig);
+        }
+
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent = 'Сохранить';
+        }
       })
       .catch(err => {
         console.error('Ошибка создания карточки:', err);
-      })
-      .finally(() => {
-        submitButton.disabled = false;
-        submitButton.textContent = 'Сохранить';
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = 'Сохранить';
+        }
       });
   }, 300);
 }
+
 
 function openPopupImage(imageSrc, imageAlt) {
   popupImageElement.src = imageSrc;
@@ -273,7 +306,6 @@ function closePopupImage() {
   closePopup(popupImage);
 }
 
-renderCards(initialCards, cardsContainer, openPopupImage);
 
 document.querySelector('.profile__edit-button').addEventListener('click', openPopupEdit);
 popupEdit.querySelector('.popup__close').addEventListener('click', closePopupEdit);
@@ -284,11 +316,6 @@ popupNewCard.querySelector('.popup__close').addEventListener('click', closePopup
 popupNewCard.querySelector('.popup__button').addEventListener('click', savePopupNewCard);
 popupImage.querySelector('.popup__close').addEventListener('click', closePopupImage);
 
-function closePopupOnOverlay(event, popup) {
-  if (event.target === popup) {
-    closePopup(popup);
-  }
-}
 
 popupEdit.addEventListener('mousedown', (event) => closePopupOnOverlay(event, popupEdit));
 popupNewCard.addEventListener('mousedown', (event) => closePopupOnOverlay(event, popupNewCard));
