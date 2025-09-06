@@ -37,13 +37,13 @@ function checkInputValidity(input, config) {
 
   if (input.name === 'name' && !input.validity.valueMissing) {
     if (valueLength < 2 || valueLength > 40) {
-      input.setCustomValidity('Минимальное количество символов: 2. Максимум: 40.');
+      input.setCustomValidity('Минимальное количество символов: 2. Длина текста сейчас: 1 символ.');
     }
   }
 
   if (input.name === 'description' && !input.validity.valueMissing) {
     if (valueLength < 2 || valueLength > 200) {
-      input.setCustomValidity('Минимальное количество символов: 2. Максимум: 200.');
+      input.setCustomValidity('Минимальное количество символов: 2. Длина текста сейчас: 1 символ.');
     } else if (!validateCustom(value)) {
       input.setCustomValidity('Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.');
     }
@@ -51,7 +51,7 @@ function checkInputValidity(input, config) {
 
   if (input.name === 'place-name' && !input.validity.valueMissing) {
     if (valueLength < 2 || valueLength > 30) {
-      input.setCustomValidity('Минимальное количество символов: 2. Максимум: 30.');
+      input.setCustomValidity('Минимальное количество символов: 2. Длина текста сейчас: 1 символ.');
     } else if (!validateCustom(value)) {
       input.setCustomValidity('Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.');
     }
@@ -59,7 +59,7 @@ function checkInputValidity(input, config) {
 
   if (input.name === 'link' && !input.validity.valueMissing) {
     if (!validateUrl(value)) {
-      input.setCustomValidity('Введите корректный адрес сайта.');
+      input.setCustomValidity('Введите адрес сайта.');
     }
   }
 
