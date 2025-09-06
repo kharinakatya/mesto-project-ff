@@ -1,54 +1,6 @@
-import { openPopup, closePopup } from './modal.js';
 import { deleteCardRequest, putLike, removeLike } from './api.js';
 
 const template = document.querySelector('#card-template').content;
-let pendingDelete = { cardElement: null, cardId: null };
-
-const popupConfirm = document.querySelector('#popup-confirm');
-const confirmForm = popupConfirm ? popupConfirm.querySelector('form[name="confirm-delete"]') : null;
-const closeButton = popupConfirm ? popupConfirm.querySelector('.popup__close') : null;
-
-if (closeButton) {
-  closeButton.addEventListener('click', () => {
-    pendingDelete = { cardElement: null, cardId: null };
-    closePopup(popupConfirm);
-  });
-}
-
-if (popupConfirm) {
-  popupConfirm.addEventListener('click', (evt) => {
-
-    if (evt.target === popupConfirm) {
-      pendingDelete = { cardElement: null, cardId: null };
-      closePopup(popupConfirm);
-    }
-  });
-}
-
-if (confirmForm) {
-  confirmForm.addEventListener('submit', (evt) => {
-    evt.preventDefault();
-    const { cardElement, cardId } = pendingDelete;
-
-    if (!cardElement || !cardId) {
-      pendingDelete = { cardElement: null, cardId: null };
-      closePopup(popupConfirm);
-      return;
-    }
-
-    deleteCardRequest(cardId)
-      .then(() => {
-        cardElement.remove();
-        pendingDelete = { cardElement: null, cardId: null };
-        closePopup(popupConfirm);
-      })
-      .catch(err => {
-        console.error('Ошибка при удалении карточки:', err);
-        pendingDelete = { cardElement: null, cardId: null };
-        closePopup(popupConfirm);
-      });
-  });
-}
 
 export function createCard(data, openPopupImage, currentUserId) {
   const cardElement = template.querySelector('.card').cloneNode(true);
@@ -66,14 +18,14 @@ export function createCard(data, openPopupImage, currentUserId) {
   const likesArray = Array.isArray(data.likes) ? data.likes : [];
   likesCountEl.textContent = String(likesArray.length);
 
-  const isLikedByCurrentUser = () => {
+  const isLikedByCurrentUser  = () => {
     return likesArray.some(item => {
       if (!item) return false;
       return (item._id && item._id === currentUserId) || (typeof item === 'string' && item === currentUserId);
     });
   };
 
-  if (currentUserId && isLikedByCurrentUser()) {
+  if (currentUserId && isLikedByCurrentUser ()) {
     likeButton.classList.add('card__like-button_is-active');
   } else {
     likeButton.classList.remove('card__like-button_is-active');
@@ -112,15 +64,19 @@ export function createCard(data, openPopupImage, currentUserId) {
   const ownerId = data.owner ? (data.owner._id || data.owner) : null;
   if (ownerId && currentUserId && ownerId === currentUserId) {
     deleteButton.style.display = '';
-    deleteButton.addEventListener('click', (evt) => {
-      const cardEl = evt.currentTarget.closest('.card');
-      pendingDelete = { cardElement: cardEl, cardId: data._id };
-      if (popupConfirm) openPopup(popupConfirm);
-      else {
-        deleteCardRequest(data._id)
-          .then(() => cardEl.remove())
-          .catch(err => console.error('Ошибка при удалении карточки (без попапа):', err));
-      }
+    deleteButton.addEventListener('click', () => {
+      deleteButton.disabled = true;
+      deleteCardRequest(data._id)
+        .then(() => {
+          cardElement.remove();
+        })
+        .catch(err => {
+          console.error('Ошибка при удалении карточки:', err);
+          alert('Не удалось удалить карточку. Попробуйте ещё раз.');
+        })
+        .finally(() => {
+          deleteButton.disabled = false;
+        });
     });
   } else {
     deleteButton.style.display = 'none';

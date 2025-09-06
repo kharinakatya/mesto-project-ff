@@ -7,24 +7,23 @@ const defaultHeaders = {
   'Content-Type': 'application/json'
 };
 
-function checkResponse(res) {
-  if (res.ok) {
-    if (res.status === 204) return Promise.resolve({});
-    return res.json().catch(() => ({}));
-  }
-
-  return res.json()
-    .then(errBody => {
-      const error = new Error(errBody.message || `Ошибка ${res.status}`);
-      error.status = res.status;
-      error.body = errBody;
-      throw error;
-    })
-    .catch(() => {
-      const error = new Error(`Ошибка ${res.status}`);
-      error.status = res.status;
-      throw error;
-    });
+function checkResponse(res) { 
+    if (res.ok) { 
+        return res.status === 204 ? Promise.resolve({}) : res.json();
+    }
+    
+    return res.json()
+        .then(errBody => {
+            const error = new Error(errBody.message || `Ошибка ${res.status}`);
+            error.status = res.status;
+            error.body = errBody;
+            return Promise.reject(error);
+        })
+        .catch(() => {
+            const error = new Error(`Ошибка ${res.status}`);
+            error.status = res.status;
+            return Promise.reject(error);
+        });
 }
 
 export function fetchUserProfile() {
